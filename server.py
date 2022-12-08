@@ -1,5 +1,10 @@
 
 from flask import Flask, request, jsonify
+import cv2
+import imutils
+import numpy
+import pytesseract
+
 app = Flask(__name__)
 
 
