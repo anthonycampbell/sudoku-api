@@ -1,5 +1,7 @@
 
 from flask import Flask, request, jsonify
+import sys
+import logging
 import cv2
 from imutils import contours
 import numpy as np
