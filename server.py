@@ -1,12 +1,13 @@
 
 from flask import Flask, request, jsonify
 import cv2
+import sys
 from imutils import contours
 import numpy as np
 import pytesseract
 
 app = Flask(__name__)
-
+print(sys.version)
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -109,6 +110,7 @@ def index():
             cropped = result[y:y + h, x:x + w]
             text = pytesseract.image_to_string(
                 cropped, lang="eng", config='--psm 9 --oem 3 -c tessedit_char_whitelist=0123456789')
+            print(repr(text))
             text = text.replace("\n", "")
             if (text == ""):
                 sudoku_string += '0'
