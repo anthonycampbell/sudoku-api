@@ -6,7 +6,8 @@ import numpy as np
 import pytesseract
 
 app = Flask(__name__)
-
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -51,7 +52,7 @@ def post_something():
 @app.route('/')
 def index():
 
-    pytesseract.pytesseract.tesseract_cmd = 'app/.apt/usr/bin/tesseract'
+    pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
 
     # Load image, grayscale, and adaptive threshold
     image = cv2.imread('sudoku.png')
@@ -86,7 +87,7 @@ def index():
         area = cv2.contourArea(c)
         if area < 50000:
             row.append(c)
-            if i % 9 == 0:  
+            if i % 9 == 0:
                 (cnts, _) = contours.sort_contours(row, method="left-to-right")
                 sudoku_rows.append(cnts)
                 row = []
