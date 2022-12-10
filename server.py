@@ -117,7 +117,7 @@ def index():
                 sudoku_string += text
 
     # A welcome message to test our server
-    return sudoku_string
+    return jsonify({'sudokuString': sudoku_string})
 
 
 if __name__ == '__main__':
