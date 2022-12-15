@@ -88,6 +88,7 @@ def post_something():
                 text = pytesseract.image_to_string(cropped, lang="eng", config='--psm 9 --oem 3 -c tessedit_char_whitelist=0123456789')
                 text = text.strip()
                 sudoku_string += text or '0'
+                print(text)
         return jsonify({'sudokuString': sudoku_string, "METHOD": "POST"})
     else:
         return jsonify({
