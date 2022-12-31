@@ -138,7 +138,7 @@ def post_something():
                     rect = cv2.rectangle(imgWarpColored, (x, y), (x + w, y + h), (0, 255, 0), 2)
                     cropped = imgWarpColored[y:y + h, x:x + w]
                     text = pytesseract.image_to_string(
-                        cropped, lang="eng", config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+                        cropped, lang="eng", config='--psm 10 --oem 3 -c tessedit_char_whitelist=123456789')
                     text = text.strip()
                     sudoku_string += text or '0'
         return jsonify({'sudokuString': sudoku_string, "METHOD": "POST"})
