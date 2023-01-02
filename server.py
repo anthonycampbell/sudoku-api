@@ -86,19 +86,17 @@ def post_something():
         thresh = preProcess(image)
 
         # Filter out all numbers and noise to isolate only boxes
-        cnts, heirarchy = cv2.findContours(
-            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts, heirarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         biggest, maxArea = biggestContour(cnts)
         if biggest.size != 0:
             biggest = reorder(biggest)
             pts1 = np.float32(biggest)
-            pts2 = np.float32(
-                [[0, 0], [widthImg, 0], [0, heightImg], [widthImg, heightImg]])
+            pts2 = np.float32([[0, 0], [widthImg, 0], [0, heightImg], [widthImg, heightImg]])
             matrix = cv2.getPerspectiveTransform(pts1, pts2)
             imgWarpColored = cv2.warpPerspective(image, matrix, (widthImg, heightImg))
             imgWarpColored = cv2.cvtColor(imgWarpColored, cv2.COLOR_BGR2GRAY)
-
-            thresh = cv2.adaptiveThreshold(imgWarpColored,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,57,5)
+            cpThresh = cv2.adaptiveThreshold(imgWarpColored, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 57, 5)
+            thresh = cv2.adaptiveThreshold(imgWarpColored, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 57, 5)
 
             # Filter out all numbers and noise to isolate only boxes
             cnts = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -109,12 +107,10 @@ def post_something():
                     cv2.drawContours(thresh, [c], -1, (0, 0, 0), -1)
             # Fix horizontal and vertical lines
             vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 5))
-            thresh = cv2.morphologyEx(
-                thresh, cv2.MORPH_CLOSE, vertical_kernel, iterations=9)
+            thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, vertical_kernel, iterations=9)
             horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 1))
-            thresh = cv2.morphologyEx(
-                thresh, cv2.MORPH_CLOSE, horizontal_kernel, iterations=4)
-            dilation = cv2.dilate(thresh, vertical_kernel, iterations=1)
+            thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, horizontal_kernel, iterations=4)
+
             # Sort by top to bottom and each row by left to right
             invert = 255 - thresh
             cnts = cv2.findContours(invert, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -127,18 +123,18 @@ def post_something():
                 if area < 50000:
                     row.append(c)
                     if i % 9 == 0:
-                        (cnts, _) = contours.sort_contours(
-                            row, method="left-to-right")
+                        (cnts, _) = contours.sort_contours(row, method="left-to-right")
                         sudoku_rows.append(cnts)
                         row = []
             # Iterate through each box
             for row in sudoku_rows:
                 for c in row:
                     x, y, w, h = cv2.boundingRect(c)
-                    rect = cv2.rectangle(imgWarpColored, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                    cropped = imgWarpColored[y:y + h, x:x + w]
-                    text = pytesseract.image_to_string(
-                        cropped, lang="eng", config='--psm 10 --oem 3 -c tessedit_char_whitelist=123456789')
+                    rect = cv2.rectangle(cpThresh, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    cropped = cpThresh[y:y + h, x:x + w]
+                    (cH, cW) = cropped.shape[:2]
+                    enlarged = cv2.resize(cropped, (cH*3, cW*3))
+                    text = pytesseract.image_to_string(enlarged, lang="eng", config='--psm 6 --oem 1 -c tessedit_char_whitelist=123456789')
                     text = text.strip()
                     sudoku_string += text or '0'
         return jsonify({'sudokuString': sudoku_string, "METHOD": "POST"})
