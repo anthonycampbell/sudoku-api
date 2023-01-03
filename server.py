@@ -1,7 +1,6 @@
 
 from flask import Flask, request, jsonify
 import cv2
-import sys
 from imutils import contours
 import numpy as np
 import pytesseract
@@ -74,7 +73,7 @@ def post_something():
     print(param)
     # You can add the test cases you made in the previous function, but in our case here you are just testing the POST functionality
     if param:
-        # pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
+        pytesseract.pytesseract.tesseract_cmd = '/app/.apt/usr/bin/tesseract'
         # Load image, grayscale, and adaptive threshold
 
         sudoku_string = ""
